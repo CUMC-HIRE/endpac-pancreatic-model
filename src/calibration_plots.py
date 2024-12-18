@@ -21,7 +21,7 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
         pd.DataFrame: Transition probabilities dataframe.
     """
     data = []
-    
+    df = None
     if metric == "all":
         for (from_idx, to_idx), (from_state, to_state) in c.transitions_itos.items():
             for age, probs in zip(age_range, tmat[:, from_idx, to_idx]):
@@ -52,7 +52,7 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
                  "Max": max(probs),
                  "Avg": np.mean(probs)
             })
-        df = pd.DataFrame(df)
+        df = pd.DataFrame(data)
     
     else:
         print("Wrong metric specified in extract_transition_probs. Need [avg, all]")
