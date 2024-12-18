@@ -42,7 +42,7 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
         
     elif metric == "avg":
         for (from_idx, to_idx), (from_state, to_state) in c.transitions_itos.items():
-            probs = tmat[:, from_idx, to_idx]
+            probs = [round(p,5) for p in tmat[:, from_idx, to_idx]]
             data.append({
                 "From State": from_state,
                 "To State": to_state,
@@ -50,7 +50,7 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
                 "Age 60-65": probs[8],
                  "Min": min(probs),
                  "Max": max(probs),
-                 "Avg": np.mean(probs)
+                 "Avg": round(np.mean(probs),5)
             })
         df = pd.DataFrame(data)
     
