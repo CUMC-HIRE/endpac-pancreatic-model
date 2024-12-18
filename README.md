@@ -1,12 +1,9 @@
 # PDAC Calibration
 Natural history calibration for pancratic ductal adenocarcinoma (PDAC) in patients with new onset diabetes (NOD).
 
-For use in PDAC NOD Early Detection project, led by Jeong Yang
-
-Columbia University Irving Medical Center HIRE
-
-Sophie Wagner, sw3767@cumc.columbia.edu
-
+For use in PDAC NOD Early Detection project, led by Jeong Yang<br>
+Columbia University Irving Medical Center HIRE<br>
+Sophie Wagner, sw3767@cumc.columbia.edu<br>
 
 ### Calibration phases
 1. Calibrate "average risk" with target := SEER PDAC incidence for ages 20-85
