@@ -59,15 +59,15 @@ model_inputs = model_inputs[2:].reset_index(drop=True)
 model_inputs_dict = dict(zip(model_inputs['Model Inputs'], model_inputs['Root Definition1']))
 seer_inc = pd.read_csv("../data/seer_incidence_adj.csv")
 
-start_params = {
-    ("avg_risk", "u_PDAC_loc"): ((range(40), 0, 1), 1-(1-0.0011)**(1/25)),
-    ("nod_risk", "u_PDAC_loc"): ((np.arange(40,44,1), 0, 1), 1-(1-0.009)**(1/3)),
-    ("double_risk", "u_PDAC_loc"): ((np.arange(44,len(ages_1y),1), 0, 1), 0.00022),
-    ("dia_risk", "u_PDAC_loc"):  ((np.arange(46,65,1), 0, 1), 0.0011),
-    ("u_PDAC_loc", "u_PDAC_reg"):model_inputs_dict['p_Local_to_Regional_PC'],
-    ("u_PDAC_reg", "u_PDAC_dis"):model_inputs_dict['p_Regional_to_Distant_PC'],
-    ("u_PDAC_loc", "d_PDAC_loc"):model_inputs_dict['p_symptom_local'],
-    ("u_PDAC_reg", "d_PDAC_reg"):model_inputs_dict['p_symptom_regional'],
-    ("u_PDAC_dis", "d_PDAC_dis"):model_inputs_dict['p_symptom_distant'],
-}
-params = start_params.copy()
+# start_params = {
+#     ("avg_risk", "u_PDAC_loc"): ((range(40), 0, 1), 1-(1-0.0011)**(1/25)),
+#     ("nod_risk", "u_PDAC_loc"): ((np.arange(40,44,1), 0, 1), 1-(1-0.009)**(1/3)),
+#     ("double_risk", "u_PDAC_loc"): ((np.arange(44,len(ages_1y),1), 0, 1), 0.00022),
+#     ("dia_risk", "u_PDAC_loc"):  ((np.arange(46,65,1), 0, 1), 0.0011),
+#     ("u_PDAC_loc", "u_PDAC_reg"):model_inputs_dict['p_Local_to_Regional_PC'],
+#     ("u_PDAC_reg", "u_PDAC_dis"):model_inputs_dict['p_Regional_to_Distant_PC'],
+#     ("u_PDAC_loc", "d_PDAC_loc"):model_inputs_dict['p_symptom_local'],
+#     ("u_PDAC_reg", "d_PDAC_reg"):model_inputs_dict['p_symptom_regional'],
+#     ("u_PDAC_dis", "d_PDAC_dis"):model_inputs_dict['p_symptom_distant'],
+# }
+# params = start_params.copy()

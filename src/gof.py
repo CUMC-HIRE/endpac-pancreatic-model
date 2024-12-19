@@ -7,7 +7,6 @@ def objective(log):
     inc, _, _, _= log
     score = 0
 
-    seer_inc_local = c.seer_inc["LocalU"]
     loc_5y, reg_5y, dis_5y = [func.get_5y_means(inc[stage, :]) for stage in [4, 5, 6]]
 
     score += np.square(loc_5y - c.seer_inc["LocalU"]).sum()

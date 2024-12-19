@@ -46,8 +46,8 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
             data.append({
                 "From State": from_state,
                 "To State": to_state,
-                "Age 20-25": probs[0],
-                "Age 60-65": probs[8],
+                "Age 30": probs[10],
+                "Age 75": probs[-10],
                  "Min": min(probs),
                  "Max": max(probs),
                  "Avg": round(np.mean(probs),5)
