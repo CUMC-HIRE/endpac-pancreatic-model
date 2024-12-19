@@ -1,0 +1,34 @@
+[System]
+Output filename=C:\repos\pdac-calibration\data\pdac_seer17_incidence_1y.csv
+Matrix filename=pdac_seer17_incidence Matrix-2
+Database name=Incidence - SEER Research Data, 17 Registries (excl AK), Nov 2023 Sub (2000-2021) - Linked To County Attributes - Time Dependent (1990-2022) Income/Rurality, 1969-2022 Counties
+Title1=PDACincidence
+
+[Session Options]
+Type=Rate
+RatesAsCasesPer=100000
+
+[Export Options]
+GZipped=false
+Variable format=labels
+File format=DOS/Windows
+Field delimiter=comma
+Missing character=space
+Fields with delimiter in quotes=true
+Remove thousands separators=true
+Flags included=true
+Variable names included=true
+Column Variables as Stats=false
+
+[Variables]
+Var1Name=Year Dx (2000-2021 group only) for DevCan
+Var1Base=Year of diagnosis
+Var1Dimension=Page
+Var2Name=Age recode with single ages and 85+
+Var2Dimension=Row
+Var3Name=Combined Summary Stage (2004+)
+Var3Dimension=Column
+Var4Name=Crude Rate
+Var5Name=Count
+Var6Name=Population
+
