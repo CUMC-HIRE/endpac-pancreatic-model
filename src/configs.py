@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 starting_age = 20
 max_age = 84
 N = 100000  # Size of sample populations
+param_interval = 1  # 1 or 5-y change in age-based params
 
 OUTPUT_PATHS = {"logs": "../out/logs", "plots": "../out/plots", "tmats": "../out/tmats", "tps": "../out/tps"}
 
@@ -38,6 +39,7 @@ ages_1y = np.arange(starting_age, max_age+1, 1)
 age_layers_1y = np.arange(0, len(ages_1y), 1)
 ages_5y = np.arange(starting_age, max_age, 5)
 age_layers_5y = np.arange(0, len(ages_5y), 1)
+age_layers = age_layers_1y if param_interval == 1 else age_layers_5y
 
 # Initial population state
 starting_pop = np.zeros((len(health_states_stoi), 1))
@@ -50,6 +52,7 @@ starting_pop[0, 0] = N  # Everyone starts in healthy state
 # Inputs
 acm_1y = pd.read_excel("../data/pdac_nod_model_inputs.xlsx", sheet_name="CDC lifetable").to_numpy()[:,1]
 acm_5y = func.get_5y_means(acm_1y[:65])
+acm_rates = acm_1y if param_interval == 1 else acm_5y[:len(param_layers)]
 model_inputs = pd.read_excel("../data/pdac_nod_model_inputs.xlsx", sheet_name="Model Inputs")
 model_inputs.columns = model_inputs.iloc[1]
 model_inputs = model_inputs[2:].reset_index(drop=True)
