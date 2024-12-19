@@ -118,13 +118,14 @@ def plot_params(markov_tmat, treeage_tmat=None, save_imgs=False, show_plot=False
     fig, axes = plt.subplots(nrows, ncols, figsize=(10, 2.5 * nrows), constrained_layout=True)
     axes = axes.flatten()  # Flatten axes array for easier indexing
     age_bucket_midpts = [22.5, 27.5, 32.5, 37.5, 42.5, 47.5, 52.5, 57.5, 62.5, 67.5, 72.5, 77.5, 82.5]
+    markov_tmat_5y = markov_tmat[2::5, :, :]
     
     for ax, ((from_idx, to_idx), (from_state, to_state)) in zip(axes, params.items()):
         # Plot TreeAge (line) and Markov (points)
         if treeage_tmat is not None:
             ax.plot(np.linspace(20, 100, treeage_tmat.shape[0]), treeage_tmat[:, from_idx, to_idx], 
                     label="TreeAge", linestyle="--", alpha=0.5)
-        ax.scatter(age_bucket_midpts, markov_tmat[:, from_idx, to_idx], 
+        ax.scatter(age_bucket_midpts, markov_tmat_5y[:, from_idx, to_idx], 
                    label="Markov", color="blue", alpha=0.7)
         
         # Customize plot
