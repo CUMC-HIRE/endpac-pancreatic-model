@@ -52,7 +52,7 @@ starting_pop[0, 0] = N  # Everyone starts in healthy state
 # Inputs
 acm_1y = pd.read_excel("../data/pdac_nod_model_inputs.xlsx", sheet_name="CDC lifetable").to_numpy()[:,1]
 acm_5y = func.get_5y_means(acm_1y[:65])
-acm_rates = acm_1y if param_interval == 1 else acm_5y[:len(param_layers)]
+acm_rates = acm_1y if param_interval == 1 else acm_5y[:len(age_layers_5y)]
 model_inputs = pd.read_excel("../data/pdac_nod_model_inputs.xlsx", sheet_name="Model Inputs")
 model_inputs.columns = model_inputs.iloc[1]
 model_inputs = model_inputs[2:].reset_index(drop=True)
