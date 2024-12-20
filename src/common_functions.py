@@ -8,7 +8,7 @@ def probtoprob(rate, a=1, b=12):
 
 def get_5y_means(inc):
     """
-    Collapses array from shape 65 to 13 get 5-y means.
+    Collapses array from shape s to s/5 get 5-y means.
     
     Args:
         inc: array of yearly incidence rate from model start to end.
