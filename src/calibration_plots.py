@@ -20,8 +20,12 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
     Returns:
         pd.DataFrame: Transition probabilities dataframe.
     """
+    
+    tmat = convert_to_conditional_probs(tmat) if type == "treeage" else tmat
+    
     data = []
-    df = None
+    df = None 
+    
     if metric == "all":
         for (from_idx, to_idx), (from_state, to_state) in c.transitions_itos.items():
             for age, probs in zip(age_range, tmat[:, from_idx, to_idx]):
@@ -143,4 +147,37 @@ def plot_params(markov_tmat, treeage_tmat=None, save_imgs=False, show_plot=False
         plt.show()
     else:
         plt.close()
- 
+
+
+def convert_to_conditional_probs(matrix):
+    """
+    Converts a transition matrix into conditional probabilities for TreeAge.
+    
+    Logic:
+    1) Survive or ACM
+        2) (a) Healthy -> u_PDAC_loc (onset)
+           (b) u_PDAC_x -> d_PDAC_x (dx)
+                3) u_PDAC_x -> u_PDAC_x+1 (progress)
+    
+    Parameters:
+        matrix (numpy.ndarray): Transition matrix of shape (65, 13, 13).
+    
+    Returns:
+        numpy.ndarray: Conditional transition matrix of the same shape.
+    """
+    conditional_matrix = matrix.copy()
+
+    # Normalize probabilities for transitions in transitions_itos
+    for (from_idx, to_idx), (from_state, to_state) in c.transitions_itos.items():
+        # Normalize by probability of surviving (1 - ACM probability)
+        p_survive = 1 - conditional_matrix[:, from_idx, c.health_states_stoi['all_death']]
+        conditional_matrix[:, from_idx, to_idx] /= p_survive
+
+        # If transition is progression (e.g., u_PDAC_x -> u_PDAC_x+1), normalize by p(no_dx)
+        if from_idx in c.u_PDAC_states and to_idx == from_idx + 1:  # Progression transition
+            dx_state = from_idx + 3  # Corresponding diagnosed state
+            p_no_dx = 1 - conditional_matrix[:, from_idx, dx_state]
+            conditional_matrix[:, from_idx, to_idx] /= p_no_dx
+
+    return conditional_matrix
+
