@@ -96,7 +96,7 @@ def plot_vs_seer(inc_adj, seer_inc, save_imgs=False, show_plot=False, outpath=c.
 def plot_vs_seer_total(inc_adj, seer_inc, save_imgs=False, show_plot=False, outpath=None, timestamp=None):
     x_values = np.arange(20,inc_adj.shape[1]+20, 1)
 
-    plt.plot(seer_inc["Age"], seer_inc["LRDU Rate"], label="SEER", color="b", linestyle="dotted")
+    plt.plot(seer_inc["Age"], seer_inc["LRDU Rate Smoothed"], label="SEER", color="b", linestyle="dotted")
     plt.plot(x_values, np.sum(inc_adj[4:7, :], axis=0), label="Model", color="b")
     plt.legend()
     plt.title("Total Incidence (L+R+D)")

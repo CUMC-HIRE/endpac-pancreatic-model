@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 Global parameters
 """
 
-risk = "nod"  #  CONFIG: ["avg", "nod", "double"]
+risk = "avg"  #  CONFIG: ["avg", "nod", "double"]
 starting_age = 20
 max_age = 84
 N = 100000  # Size of sample populations
@@ -88,10 +88,9 @@ model_inputs_dict = dict(zip(model_inputs['Model Inputs'], model_inputs['Root De
 # Incidence data (risk-based)
 seer_inc_1y_avg = pd.read_csv("../data/seer_incidence_1y.csv")
 seer_inc_5y_avg = pd.read_csv("../data/seer_incidence_5y.csv")
-seer_inc_1y_double = pd.read_csv("../data/seer_incidence_post_nod.csv")
+seer_inc_1y_double = pd.read_csv("../data/seer_incidence_1y_double.csv")
 seer_inc_nod_full = pd.read_csv("../data/seer_incidence_nod_full.csv")  # Ages 20-62
 seer_inc_nod_only = pd.read_csv("../data/seer_incidence_nod.csv")  # Ages 57-62
-seer_inc = seer_inc_nod_full if risk == "nod" else seer_inc_1y_avg
 
 """
 Model settings by risk
@@ -112,5 +111,6 @@ else:
     ages_to_smooth =  [22.5,27.5,32.5,37.5,42.5,47.5,52.5,57.5,62.5,67.5,72.5,77.5,82.5]
     ages_to_extract = ages_1y
     seer_inc = seer_inc_1y_double if risk=="double" else seer_inc_1y_avg
+    
 health_states_itos = dict((v, k) for k, v in health_states_stoi.items())
 transitions_stoi = dict((v, k) for k, v in transitions_itos.items())
