@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 Global parameters
 """
 
-risk = "avg"  #  CONFIG: ["avg", "nod", "double"]
+risk = "double"  #  CONFIG: ["avg", "nod", "double"]
 starting_age = 20
 max_age = 84
 N = 100000  # Size of sample populations
