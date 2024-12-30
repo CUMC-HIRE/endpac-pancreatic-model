@@ -40,10 +40,16 @@ def objective_post_nod(log):
     score += np.square(reg - data['RegionalU']).sum()
     score += np.square(dis - data["DistantU"]).sum()
     
+
+def objective_cp(tmat):
+    score = 0
+    cp = cancer_progression(tmat)
+    score += np.square(cp-3.0).sum()
+    return score
     
 def cancer_progression(tmat):
     """
-    Calculate cancer progression rate using MFPT formula.
+    Calculate time from preclinical local to preclinical distant. MFPT
     """
     p_12 = tmat[:, 1, 2] # loc to reg
     p_23 = tmat[:, 2, 3] # reg to dis
@@ -55,15 +61,41 @@ def cancer_progression(tmat):
     
     return cp
     
-def sojourn_time(tmat):
-    """
-    Calculate mean sojourn time.
-    """
     
+def sojourn_time_weighted(tm, metric="mean"):
+    """
+    Calculate  time spent in each path.
+    """
+    in_loc, in_reg, in_dis = [1/(1-tm[:, x, x]) for x in [1,2,3]]
+    mloc = in_loc
+    mreg = in_loc + in_reg
+    mdis = (in_loc * in_reg * tm[:, 1, 2]) + in_dis
+    
+    if metric == "mean": # Mean across paths per age
+        sj_time =  np.mean([mloc, mreg, mdis], axis=0)
+    else: # Each path per age
+        sj_time = np.array([mloc, mreg, mdis])
+    
+    return sj_time
+
+def sojourn_time_weighted2(tm):
+    """
+    Calculate  time spent in each path, weighted by stage.
+    """
+    in_loc, in_reg, in_dis = [1/(1-tm[:, x, x]) for x in [1,2,3]]
+    mloc = in_loc
+    mreg = in_loc + (in_reg * tm[:, 1, 2])
+    mdis = in_loc + (in_reg * tm[:, 1, 2]) + (in_dis * tm[:, 2, 3])
+    sj_time = np.array([mloc, mreg, mdis])
+    
+    return sj_time
+
+def sojourn_time_in_stage(tmat):
+    """
+    Calculate mean time in each state. Average over all states.
+    """
     sojourn_times = np.zeros((3,len(c.ages_1y)))
     for i in np.arange(1,4,1):
         p_stay = tmat[:, i, i]
         sojourn_times[i-1] = 1 / (1 - p_stay)
-    avg_sojourn_time = np.mean(sojourn_times, axis=0)
-    
-    return avg_sojourn_time
+    return sojourn_times
