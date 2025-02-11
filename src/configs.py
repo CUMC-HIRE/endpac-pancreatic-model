@@ -8,16 +8,19 @@ from scipy.interpolate import interp1d
 Global parameters
 """
 
-risk = "double"  #  CONFIG: ["avg", "nod", "double"]
+risk = "avg"  #  CONFIG: ["avg", "nod", "double"]
+risk_type = "endpac0"
 starting_age = 20
-max_age = 84
+max_age = 85
 N = 100000  # Size of sample populations
 
 OUTPUT_PATHS = {"logs": f"../out/{risk}/logs", 
                 "plots": f"../out/{risk}/plots", 
                 "tmats": f"../out/{risk}/tmats", 
                 "tps": f"../out/{risk}/tps"}
-
+if risk=="nod":
+    OUTPUT_PATHS["ratios"]= f"../out/{risk}/ratios"
+    
 """
 Model setup
 """
@@ -77,6 +80,7 @@ Load inputs
 
 # ACM
 acm_1y = pd.read_excel("../data/pdac_nod_model_inputs.xlsx", sheet_name="CDC lifetable").to_numpy()[:, 1]
+acm_5y = np.mean(acm_1y[:65].reshape(-1, 5), axis=1)
 acm_rates = acm_1y[:65]
 
 # Starting params
@@ -97,13 +101,22 @@ Model settings by risk
 """
 
 if risk == "nod":
-    health_states_stoi = health_states_stoi_nod
-    transitions_itos = transitions_itos_nod
-    age_layers = age_layers_1y[40:46]  # Corresponds to ages 60-65
-    age_layers_adj = age_layers_1y[40:46]
+    starting_pop = pd.read_csv("../out/avg/logs/20250106_1626_pop_log.csv").to_numpy()[:,1:]
+    starting_inc = pd.read_csv("../out/avg/logs/20250106_1626_inc_unadj.csv").to_numpy()
+    starting_inc = starting_inc.T[1:, :]
+    seer_inc = seer_inc_1y_avg
+    if risk_type=="endpac3":
+        seer_inc = seer_inc_nod_only
+    elif risk_type=="endpac0":
+        seer_inc = seer_inc_1y_avg
+    # health_states_stoi = health_states_stoi_nod
+    # transitions_itos = transitions_itos_nod
+    pPDAC = [seer_inc[stage].mean() for stage in ['pLocal', 'pRegional', 'pDistant']]
+    age_layers = age_layers_1y 
     ages_to_smooth = np.arange(50,63,1)
+    age_layers_adj = age_layers_1y[40:46]
     ages_to_extract = ages_1y[40:46]  # Corresponds to ages 60-65
-    seer_inc = seer_inc_nod_only
+    
     acm_rates = acm_1y[40:46]
 else:
     age_layers = age_layers_1y  # When to increment layer in run_markov()

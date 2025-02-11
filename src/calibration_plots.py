@@ -6,6 +6,10 @@ import configs as c
 import os
 from datetime import datetime
 
+""" 
+Transition functions
+"""
+
 def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ages_5y, save=False, outpath=c.OUTPUT_PATHS['tps'], timestamp=None):
     """
     Extracts and optionally saves transition probabilities from a transition matrix.
@@ -27,16 +31,15 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
     df = None 
     
     if metric == "all":
-        for (from_idx, to_idx), (from_state, to_state) in c.transitions_itos.items():
-            for age, probs in zip(age_range, tmat[:, from_idx, to_idx]):
-                data.append({
-                    "Age": age,
-                    "From State": from_state,
-                    "To State": to_state,
-                    "Probability": probs
-                })
+        out = np.zeros((len(c.transitions_itos.keys()), len(age_range)))
+        if len(age_range) == 13:
+            for idx, (from_state, to_state) in enumerate(c.transitions_itos.keys()):
+                out[idx] = tmat[2::5, from_state, to_state]
+        elif len(age_range) == 65:
+            for idx, (from_state, to_state) in enumerate(c.transitions_itos.keys()):
+                out[idx] = tmat[:, from_state, to_state]
         
-        df = pd.DataFrame(data)
+        df = pd.DataFrame(out)
     
         if save:
             timestamp = timestamp if timestamp is not None else datetime.now().strftime("%Y%m%d_%H%M")
@@ -64,7 +67,39 @@ def extract_transition_probs(tmat, type="markov", metric="all", age_range = c.ag
     return df
         
 
-def plot_vs_seer(inc_adj, seer_inc, save_imgs=False, show_plot=False, outpath=c.OUTPUT_PATHS["plots"], timestamp=None):
+def convert_to_conditional_probs(matrix):
+    """
+    Converts a transition matrix into conditional probabilities for TreeAge.
+    
+    Parameters:
+        matrix (numpy.ndarray): Transition matrix of shape (n_ages, n_states, n_states).
+    
+    Returns:
+        numpy.ndarray: Conditional transition matrix of the same shape.
+    """
+    conditional_matrix = np.copy(matrix)
+
+    # Loop through all transitions to adjust probabilities
+    for (from_idx, to_idx), (from_state, to_state) in c.transitions_itos.items():
+        # Compute survival probability (1 - ACM)
+        p_survive = 1 - matrix[:, from_idx, c.health_states_stoi['all_death']].clip(1e-10, 1.0)
+
+        # Normalize by survival probability
+        conditional_matrix[:, from_idx, to_idx] /= p_survive
+
+        # If transition is progression (e.g., u_PDAC_x -> u_PDAC_x+1), normalize by p(no_dx)
+        if from_idx in c.u_PDAC_states and to_idx == from_idx + 1:  # Progression
+            dx_state = from_idx + 3  # Corresponding diagnosed state
+            p_no_dx = 1 - matrix[:, from_idx, dx_state].clip(1e-10, 1.0)
+            conditional_matrix[:, from_idx, to_idx] /= p_no_dx 
+    return conditional_matrix
+
+
+"""
+Plotting functions
+"""
+
+def plot_vs_seer(inc_adj, seer_inc=c.seer_inc, save_imgs=False, show_plot=True, outpath=c.OUTPUT_PATHS["plots"], timestamp=None):
     """Plot model incidence by stage vs. SEER calibration incidence
 
     Args:
@@ -83,7 +118,36 @@ def plot_vs_seer(inc_adj, seer_inc, save_imgs=False, show_plot=False, outpath=c.
     plt.legend()
     plt.title("Incidence of Local, Regional, and Distant States")
     plt.xlabel("Time Point / Age Group")
-    plt.ylabel("incidence")
+    plt.ylabel("Incidence per 100k")
+    if save_imgs:
+        plt.savefig(f"{outpath}/{timestamp}_inc_stage.png")  # Save figure
+        plt.close()
+    if show_plot:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_vs_seer_cumulative(inc_adj, seer_inc=c.seer_inc, save_imgs=False, show_plot=True, outpath=c.OUTPUT_PATHS["plots"], timestamp=None):
+    """Plot cumulative model incidence by stage vs. SEER calibration incidence
+
+    Args:
+        inc_adj (matrix): output incidence log from run_markov
+        seer_inc (df): item of comparison
+    """
+    x_values = np.arange(20, inc_adj.shape[1]+20, 1)
+
+    # Plot yearly incidence by stage
+    plt.plot(seer_inc["Age"], seer_inc["LocalU"].cumsum(), label=f"Local (SEER)", color="b", linestyle="dotted")
+    plt.plot(seer_inc["Age"], seer_inc["RegionalU"].cumsum(), label=f"Regional (SEER)", color="r", linestyle="dotted")
+    plt.plot(seer_inc["Age"], seer_inc["DistantU"].cumsum(), label=f"Distant (SEER)", color="g", linestyle="dotted")
+    plt.plot(x_values, inc_adj[4, :].cumsum(), label="Local (Model)", color="b")
+    plt.plot(x_values, inc_adj[5, :].cumsum(), label="Regional (Model)", color="r")
+    plt.plot(x_values, inc_adj[6, :].cumsum(), label="Distant (Model)", color="g")
+    plt.legend()
+    plt.title("Cumulative Incidence of Local, Regional, and Distant States")
+    plt.xlabel("Time Point / Age Group")
+    plt.ylabel("Incidence per 100k")
     if save_imgs:
         plt.savefig(f"{outpath}/{timestamp}_inc_stage.png")  # Save figure
         plt.close()
@@ -101,7 +165,7 @@ def plot_vs_seer_total(inc_adj, seer_inc, save_imgs=False, show_plot=False, outp
     plt.legend()
     plt.title("Total Incidence (L+R+D)")
     plt.xlabel("Time Point / Age Group")
-    plt.ylabel("incidence")
+    plt.ylabel("Incidence per 100k")
     if save_imgs:
         plt.savefig(f"{outpath}/{timestamp}_inc_total.png")  # Save figure
     if show_plot:
@@ -147,33 +211,4 @@ def plot_params(markov_tmat, treeage_tmat=None, save_imgs=False, show_plot=False
         plt.show()
     else:
         plt.close()
-
-
-def convert_to_conditional_probs(matrix):
-    """
-    Converts a transition matrix into conditional probabilities for TreeAge.
-    
-    Parameters:
-        matrix (numpy.ndarray): Transition matrix of shape (n_ages, n_states, n_states).
-    
-    Returns:
-        numpy.ndarray: Conditional transition matrix of the same shape.
-    """
-    conditional_matrix = np.copy(matrix)
-
-    # Loop through all transitions to adjust probabilities
-    for (from_idx, to_idx), (from_state, to_state) in c.transitions_itos.items():
-        # Compute survival probability (1 - ACM)
-        p_survive = 1 - matrix[:, from_idx, c.health_states_stoi['all_death']].clip(1e-10, 1.0)
-
-        # Normalize by survival probability
-        conditional_matrix[:, from_idx, to_idx] /= p_survive
-
-        # If transition is progression (e.g., u_PDAC_x -> u_PDAC_x+1), normalize by p(no_dx)
-        if from_idx in c.u_PDAC_states and to_idx == from_idx + 1:  # Progression
-            dx_state = from_idx + 3  # Corresponding diagnosed state
-            p_no_dx = 1 - matrix[:, from_idx, dx_state].clip(1e-10, 1.0)
-            conditional_matrix[:, from_idx, to_idx] /= p_no_dx 
-    return conditional_matrix
-
 

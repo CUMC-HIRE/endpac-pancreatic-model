@@ -14,6 +14,20 @@ def objective(log):
 
     return score
 
+def objective_endpac0(log):
+    inc, _, _, _= log
+    score = 0
+    
+    loc, reg, dis = [inc[stage,40:45] for stage in [4, 5, 6]]
+    data = c.seer_inc_1y_double.query('Age > 59 & Age < 65')
+    
+    # Yearly incidence penalty
+    score += np.square(loc - data["LocalU"]).sum()
+    score += np.square(reg - data["RegionalU"]).sum()
+    score += np.square(dis - data["DistantU"]).sum()
+
+    return score
+
 # NOD objective function
 def objective_nod(log):
     inc, _, _, _= log
@@ -44,7 +58,7 @@ def objective_post_nod(log):
 def objective_cp(tmat):
     score = 0
     cp = cancer_progression(tmat)
-    score += np.square(cp-3.0).sum()
+    score += np.square(cp-3.0).sum() 
     return score
     
 def cancer_progression(tmat):
