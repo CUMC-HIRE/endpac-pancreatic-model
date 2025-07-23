@@ -3,8 +3,8 @@ __pycache__/
 .DS_Store
 
 # SEER data files (need to register for access)
-s17*.csv
-seer_*.csv
-pdac_seer*.csv
+data/s17*.csv
+data/seer_*.csv
+data/pdac_seer*.csv
 
 OWSA/
