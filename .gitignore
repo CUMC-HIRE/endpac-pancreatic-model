@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+
+# SEER data files (need to register for access)
+s17*.csv
+seer_*.csv
+pdac_seer*.csv
+
+OWSA/
