@@ -1,4 +1,7 @@
-#  A Novel Multimodal Approach to Pancreatic Cancer Screening Amongst Individuals with New Onset Diabetes
+#  Pancreatic cancer screening in new-onset diabetes (NOD) populations
+
+_A Novel Multimodal Approach to Pancreatic Cancer Screening Amongst Individuals with New Onset Diabetes_
+
 
 Columbia University Irving Medical Center HIRE<br>
 Sophie Wagner, sw3767@cumc.columbia.edu<br>
