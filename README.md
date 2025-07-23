@@ -1,4 +1,4 @@
-#  Pancreatic cancer screening in new-onset diabetes (NOD) populations
+#  Pancreatic cancer screening in patients with new-onset diabetes
 
 _A Novel Multimodal Approach to Pancreatic Cancer Screening Amongst Individuals with New Onset Diabetes_
 
