@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+.DS_Store
 
 # SEER data files (need to register for access)
 s17*.csv
